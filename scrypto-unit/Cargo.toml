@@ -1,0 +1,26 @@
+[package]
+name = "scrypto-unit"
+version = "0.10.0"
+edition = "2021"
+
+[dependencies]
+radix-engine = { path = "../radix-engine", default-features = false }
+radix-engine-interface = { path = "../radix-engine-interface", default-features = false }
+radix-engine-constants = { path = "../radix-engine-constants" }
+radix-engine-stores = { path = "../radix-engine-stores", default-features = false }
+transaction = { path = "../transaction", default-features = false }
+scrypto = { path = "../scrypto", default-features = false }
+utils = { path = "../utils", default-features = false }
+sbor = { path = "../sbor", default-features = false }
+serde = { version = "1.0.137", default-features = false }
+serde_json = { version = "1.0.81" }
+wabt = { version = "0.10.0" }
+
+[features]
+default = ["std"]
+std = ["scrypto/std", "scrypto/serde", "sbor/std", "radix-engine-interface/std", "radix-engine-stores/std", "radix-engine/std", "transaction/std", "utils/std"]
+alloc = ["scrypto/alloc", "scrypto/serde", "sbor/alloc", "radix-engine-interface/alloc", "radix-engine-stores/alloc", "radix-engine/alloc", "transaction/alloc", "utils/alloc"]
+resource_tracker = []
+
+[lib]
+bench = false

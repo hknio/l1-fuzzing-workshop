@@ -1,0 +1,45 @@
+[workspace]
+# It's its own workspace - hide it from the root workspace
+
+[package]
+name = "simulator"
+version = "0.10.0"
+edition = "2021"
+
+[dependencies]
+sbor = { path = "../sbor" }
+radix-engine = { path = "../radix-engine" }
+radix-engine-stores = { path = "../radix-engine-stores", features = ["rocksdb"] }
+radix-engine-constants = { path = "../radix-engine-constants" }
+radix-engine-interface = { path = "../radix-engine-interface" }
+transaction = { path = "../transaction" }
+utils = { path = "../utils" }
+serde = { version = "1.0.137", features = ["derive"] }
+serde_json = { version = "1.0.81" }
+clap = { version = "3.1.17", features = ["derive", "cargo"] }
+dirs = { version = "4.0.0" }
+colored = { version = "2.0.0" }
+uuid = { version = "1.0.0", features = ["v4"] }
+hex = { version = "0.4.3" }
+cargo_toml = { version = "0.11.5" }
+rand = { version = "0.8.5" }
+regex = { version = "1.5.5" }
+temp-env = { version = "0.2.0" }
+
+[[bin]]
+name = "resim"
+path = "src/bin/resim.rs"
+bench = false
+
+[[bin]]
+name = "scrypto"
+path = "src/bin/scrypto.rs"
+bench = false
+
+[[bin]]
+name = "rtmc"
+path = "src/bin/rtmc.rs"
+bench = false
+
+[lib]
+bench = false

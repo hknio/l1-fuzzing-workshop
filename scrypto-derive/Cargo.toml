@@ -1,0 +1,43 @@
+[package]
+name = "scrypto-derive"
+version = "0.10.0"
+edition = "2021"
+
+[lib]
+proc-macro = true
+bench = false
+
+[dependencies]
+proc-macro2 = { version = "1.0.38" }
+syn = { version = "1.0.93", features = ["full", "extra-traits"] }
+quote = { version = "1.0.18" }
+serde = { version = "1.0.137", default-features = false }
+serde_json = { version = "1.0.81", default-features = false }
+scrypto-schema = { path = "../scrypto-schema", default-features = false }
+
+[features]
+# Currenlty, dependencies of procedrual macros are imported to host crates. This may accidentally 
+# enable unwanted features of host dependencies, i.e. `serde`, `serde_json`, `sbor` and `scrypto-schema`.
+# 
+# To work around with it, we've added features `std` and `alloc` for `scrypto-derive`, even
+# though it only works under `std` environment.
+#
+# See:
+# - https://github.com/rust-lang/cargo/issues/5730
+# - https://github.com/rust-lang/cargo/issues/7915
+#
+default = ["std"]
+std = [
+    "serde/std", "serde_json/std",
+    "scrypto-schema/std", "scrypto-schema/serde"
+]
+alloc = [
+    "serde/alloc", "serde_json/alloc",
+    "scrypto-schema/alloc", "scrypto-schema/serde"
+]
+
+# Enable trace
+trace = []
+
+# Disable schema gen in the output WASM.
+no-schema = []

@@ -1,0 +1,30 @@
+[package]
+name = "sbor"
+version = "0.10.0"
+edition = "2021"
+
+[dependencies]
+utils = { path = "../utils", default-features = false }
+hex = { version = "0.4.3", default-features = false }
+sbor-derive = { path = "../sbor-derive" }
+serde = { version = "1.0.137", default-features = false, optional = true, features=["derive"] }
+const-sha1 = { git = "https://github.com/radixdlt/const-sha1", default-features = false } # Chosen because of its small size and 0 transitive dependencies
+lazy_static = "1.4.0"
+
+[dev-dependencies]
+serde_json = { version = "1.0.81", default-features = false }
+
+[features]
+# You should enable either `std` or `alloc`
+default = ["std"]
+std = ["utils/std", "serde?/std", "serde_json/std", "hex/std"]
+alloc = ["utils/alloc", "serde?/alloc", "lazy_static/spin_no_std", "serde_json/alloc", "hex/alloc"]
+
+# Enable serde derives for SBOR value and type models
+serde = ["dep:serde", "utils/serde"]
+
+# Enable tracing
+trace = ["sbor-derive/trace"]
+
+[lib]
+bench = false
