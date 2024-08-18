@@ -12,20 +12,18 @@ extern "C" {
 }
 
 struct Fuzzer {
-    test_runner: TestRunner,
-    public_key: EcdsaSecp256k1PublicKey
+    test_runner: TestRunner
 }
 
 impl Fuzzer {
     pub fn new() -> Self {
-        let mut test_runner = TestRunner::builder().without_trace().build();
-        let (public_key, _, account) = test_runner.new_allocated_account();
+        let test_runner = TestRunner::builder().without_trace().with_disabled_commit().build();
         #[cfg(feature = "coverage")]
         unsafe {
             // reset coverage data from TestRunner::builder and new_allocated_account
             __llvm_profile_reset_counters();
         }
-        Self { test_runner, public_key }
+        Self { test_runner }
     }
 
     pub fn fuzz(&mut self, manifest: TransactionManifest) {
@@ -33,6 +31,7 @@ impl Fuzzer {
             manifest,
             vec![],
         );
+        self.test_runner.reset_nonce();
     
         if receipt.is_commit_success() {
             println!("Execution was ok");

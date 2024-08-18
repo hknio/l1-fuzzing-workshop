@@ -131,6 +131,7 @@ pub struct TestRunnerBuilder {
     custom_genesis: Option<SystemTransaction>,
     trace: bool,
     state_hashing: bool,
+    disable_commit: bool,
 }
 
 impl TestRunnerBuilder {
@@ -146,6 +147,11 @@ impl TestRunnerBuilder {
 
     pub fn with_custom_genesis(mut self, genesis: SystemTransaction) -> Self {
         self.custom_genesis = Some(genesis);
+        self
+    }
+
+    pub fn with_disabled_commit(mut self) -> Self {
+        self.disable_commit = true;
         self
     }
 
@@ -199,6 +205,7 @@ impl TestRunnerBuilder {
             next_transaction_nonce,
             trace: self.trace,
             faucet_component,
+            disable_commit: self.disable_commit,
         }
     }
 }
@@ -212,6 +219,7 @@ pub struct TestRunner {
     trace: bool,
     state_hash_support: Option<StateHashSupport>,
     faucet_component: ComponentAddress,
+    disable_commit: bool,
 }
 
 impl TestRunner {
@@ -223,6 +231,7 @@ impl TestRunner {
             #[cfg(feature = "resource_tracker")]
             trace: false,
             state_hashing: false,
+            disable_commit: false,
         }
     }
 
@@ -246,6 +255,10 @@ impl TestRunner {
     pub fn next_transaction_nonce(&mut self) -> u64 {
         self.next_transaction_nonce += 1;
         self.next_transaction_nonce - 1
+    }
+
+    pub fn reset_nonce(&mut self) {
+        self.next_transaction_nonce -= 1;
     }
 
     pub fn new_key_pair(&mut self) -> (EcdsaSecp256k1PublicKey, EcdsaSecp256k1PrivateKey) {
@@ -763,12 +776,15 @@ impl TestRunner {
             execution_config,
             &executable,
         );
-        if let TransactionResult::Commit(commit) = &transaction_receipt.result {
-            self.substate_db
-                .commit(&commit.state_updates)
-                .expect("Database misconfigured");
-            if let Some(state_hash_support) = &mut self.state_hash_support {
-                state_hash_support.update_with(&commit.state_updates);
+        // disables commit after fuzz test (we could use preview too but let's assume there's no preview)
+        if !self.disable_commit {
+            if let TransactionResult::Commit(commit) = &transaction_receipt.result {
+                self.substate_db
+                    .commit(&commit.state_updates)
+                    .expect("Database misconfigured");
+                if let Some(state_hash_support) = &mut self.state_hash_support {
+                    state_hash_support.update_with(&commit.state_updates);
+                }
             }
         }
         transaction_receipt
