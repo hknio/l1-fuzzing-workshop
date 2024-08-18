@@ -31,7 +31,7 @@ impl Fuzzer {
     pub fn fuzz(&mut self, manifest: TransactionManifest) {
         let receipt = self.test_runner.execute_manifest(
             manifest,
-            vec![NonFungibleGlobalId::from_public_key(&self.public_key)],
+            vec![],
         );
     
         if receipt.is_commit_success() {

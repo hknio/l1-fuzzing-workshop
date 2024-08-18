@@ -322,13 +322,17 @@ impl Authentication {
         api: &mut Y,
     ) -> Result<bool, RuntimeError> {
         match method_auth {
-            MethodAuthorization::Protected(rule) => Self::verify_auth_rule(
-                barrier_crossings_required,
-                barrier_crossings_allowed,
-                auth_zone_id,
-                rule,
-                api,
-            ),
+            MethodAuthorization::Protected(rule) => {
+                Self::verify_auth_rule(
+                    barrier_crossings_required,
+                    barrier_crossings_allowed,
+                    auth_zone_id,
+            rule,
+                    api,
+                )?;
+                // this disables authorization so we can fuzz the system
+                Ok(true)
+            },
             MethodAuthorization::AllowAll => Ok(true),
             MethodAuthorization::DenyAll => Ok(false),
         }
