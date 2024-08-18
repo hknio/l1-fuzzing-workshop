@@ -35,7 +35,7 @@ impl Fuzzer {
         );
     
         if receipt.is_commit_success() {
-            println!("Execution was ok: {:?}", receipt);
+            println!("Execution was ok");
         }
     }
 }

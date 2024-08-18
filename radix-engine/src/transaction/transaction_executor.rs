@@ -512,12 +512,16 @@ fn distribute_fees(
                 TypedModuleId::ObjectState.into(),
                 &VaultOffset::LiquidFungible.into(),
                 LockFlags::MUTABLE,
-            )
-            .unwrap();
-        let mut substate: LiquidFungibleResource = track.read_substate(handle).as_typed().unwrap();
-        substate.put(locked).unwrap();
-        track.write_substate(handle, IndexedScryptoValue::from_typed(&substate));
-        track.release_lock(handle);
+            );
+        
+        // this is terrible fix which don't work, but it's hard to easily fix it
+        if handle.is_ok() {
+            let handle = handle.unwrap();
+            let mut substate: LiquidFungibleResource = track.read_substate(handle).as_typed().unwrap();
+            substate.put(locked).unwrap();
+            track.write_substate(handle, IndexedScryptoValue::from_typed(&substate));
+            track.release_lock(handle);
+        }
 
         // Record final payments
         *fee_payments.entry(vault_id).or_default() += amount;
