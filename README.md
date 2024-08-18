@@ -4,6 +4,13 @@ This project shows how to add a simple fuzzing target in [radixdlt/radixdlt-scry
 
 This repository is a part of *Layer 1 fuzzing workshop*. To check how fuzzing was implemented check commit history.
 
+### Commands used so far
+
+1. `rustup default nightly-2024-06-24`
+2. `rustup target add wasm32-unknown-unknown`
+3. `cargo install cargo-fuzz`
+4. `cargo-fuzz init --fuzz-dir radix-engine-fuzzer --target fuzzer`
+
 # Scrypto
 
 Language for building DeFi apps on Radix.
