@@ -23,7 +23,7 @@ impl WasmModule {
     pub fn init(code: &[u8]) -> Result<Self, PrepareError> {
         // deserialize
         let module = parity_wasm::deserialize_buffer(code)
-            .map_err(|_| PrepareError::DeserializationError)?;
+            .unwrap();
 
         // validate
         validate_module::<PlainValidator>(&module).map_err(|_| PrepareError::ValidationError)?;

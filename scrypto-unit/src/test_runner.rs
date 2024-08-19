@@ -1,6 +1,7 @@
 use std::convert::Infallible;
 use std::ffi::OsStr;
 use std::fs;
+use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
@@ -70,7 +71,8 @@ impl Compile {
         // Build
         let status = Command::new("cargo")
             .current_dir(package_dir.as_ref())
-            .args(["build", "--target", "wasm32-unknown-unknown", "--release"])
+            .args(["build", "--target", "wasm32-unknown-unknown", "--release", "-Zbuild-std=panic_abort,std"])
+            .env("RUSTFLAGS", "-Ctarget-cpu=mvp") // fixes bug with wasm parser, https://github.com/rust-lang/rust/issues/109807
             .status()
             .unwrap();
         if !status.success() {
@@ -746,6 +748,15 @@ impl TestRunner {
     where
         T: IntoIterator<Item = NonFungibleGlobalId>,
     {
+        // dump transactions from tests to files so we can reuse them for fuzzing seed corpus
+        if let Ok(dump_manifest_dir) = std::env::var("DUMP_MANIFEST_DIR") {
+            let encoded_manifest = manifest_encode(&manifest).unwrap();
+            let manifest_hash = hash(&encoded_manifest);
+            let path = format!("{dump_manifest_dir}/{manifest_hash}.manifest");
+            let mut file = std::fs::File::create(path).unwrap();
+            file.write_all(&encoded_manifest).unwrap();
+        }
+
         let transactions =
             TestTransaction::new(manifest, self.next_transaction_nonce(), cost_unit_limit);
         let executable = transactions.get_executable(initial_proofs.into_iter().collect());

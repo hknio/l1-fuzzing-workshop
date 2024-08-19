@@ -28,6 +28,7 @@ once_cell = "1.10.0"
 default = ["std"]
 std = ["sbor/std", "transaction/std", "radix-engine/std", "radix-engine-interface/std", "radix-engine-stores/std", "utils/std", "scrypto/std", "scrypto-unit/std"]
 coverage = []
+fuzzing = ["radix-engine/fuzzing"]
 
 [[bin]]
 name = "fuzzer"

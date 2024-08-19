@@ -323,7 +323,7 @@ impl Authentication {
     ) -> Result<bool, RuntimeError> {
         match method_auth {
             MethodAuthorization::Protected(rule) => {
-                Self::verify_auth_rule(
+                let result = Self::verify_auth_rule(
                     barrier_crossings_required,
                     barrier_crossings_allowed,
                     auth_zone_id,
@@ -331,7 +331,10 @@ impl Authentication {
                     api,
                 )?;
                 // this disables authorization so we can fuzz the system
-                Ok(true)
+                #[cfg(feature="fuzzing")]
+                let result = true;
+
+                Ok(result)
             },
             MethodAuthorization::AllowAll => Ok(true),
             MethodAuthorization::DenyAll => Ok(false),

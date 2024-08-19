@@ -1,2 +1,2 @@
 #!/bin/bash
-cargo fuzz build --fuzz-dir . --release
+cargo fuzz build --fuzz-dir . --release --features fuzzing

@@ -1,5 +1,5 @@
 #!/bin/bash
-cargo fuzz coverage --fuzz-dir . --release --features coverage fuzzer
+cargo fuzz coverage --fuzz-dir . --release --features coverage,fuzzing fuzzer
 
 # Determine the correct path based on the OS
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
