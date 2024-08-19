@@ -10,7 +10,8 @@ This repository is a part of *Layer 1 fuzzing workshop*. To check how fuzzing wa
 2. `rustup target add wasm32-unknown-unknown`
 3. `cargo install cargo-fuzz`
 4. `cargo-fuzz init --fuzz-dir radix-engine-fuzzer --target fuzzer`
-5.  Install llvm-18 - [https://apt.llvm.org/](https://apt.llvm.org/) or use `brew install llvm@18`
+5. Install llvm-18 - [https://apt.llvm.org/](https://apt.llvm.org/) or use `brew install llvm@18`
+
 
 # Scrypto
 
