@@ -1,7 +1,9 @@
-#![no_main]
+#![cfg_attr(feature = "libfuzzer", no_main)]
+
+#[cfg(feature = "libfuzzer")]
+use libfuzzer_sys::fuzz_target;
 
 use std::sync::Mutex;
-use libfuzzer_sys::fuzz_target;
 use radix_engine::transaction::TransactionResult;
 use radix_engine_common::dec;
 use sbor::{Decoder, Encoder};
@@ -90,6 +92,7 @@ static FUZZER: Lazy<Mutex<Fuzzer>> = Lazy::new(|| {
     Mutex::new(Fuzzer::new())
 });
 
+#[cfg(feature = "libfuzzer")]
 fuzz_target!(|data: &[u8]| {
     let manifest_and_nonce = ManifestDecoder::new(data, MANIFEST_SBOR_V1_MAX_DEPTH - 4)
         .decode_payload(MANIFEST_SBOR_V1_PAYLOAD_PREFIX);
@@ -100,3 +103,17 @@ fuzz_target!(|data: &[u8]| {
     let mut fuzzer = FUZZER.lock().unwrap();
     fuzzer.fuzz(manifest, nonce);
 });
+
+#[cfg(feature = "afl")]
+fn main() {
+    extern crate afl;
+    let mut fuzzer = FUZZER.lock().unwrap();
+    afl::fuzz!(|data: &[u8]| {
+        let manifest_and_nonce = ManifestDecoder::new(data, MANIFEST_SBOR_V1_MAX_DEPTH - 4)
+            .decode_payload(MANIFEST_SBOR_V1_PAYLOAD_PREFIX);
+        if !manifest_and_nonce.is_err() {
+            let (manifest, nonce) : (TransactionManifest, u64) = manifest_and_nonce.unwrap();
+            fuzzer.fuzz(manifest, nonce);
+        }
+    });
+}
