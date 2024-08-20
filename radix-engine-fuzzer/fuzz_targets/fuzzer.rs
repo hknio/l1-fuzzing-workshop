@@ -2,6 +2,8 @@
 
 use std::sync::Mutex;
 use libfuzzer_sys::fuzz_target;
+use radix_engine::transaction::TransactionResult;
+use radix_engine_common::dec;
 use sbor::{Decoder, Encoder};
 use scrypto::{address::Bech32Encoder, crypto::EcdsaSecp256k1PublicKey, math::test, prelude::{manifest_decode, manifest_encode, FromPublicKey, ManifestDecoder, ManifestEncoder, NonFungibleGlobalId, MANIFEST_SBOR_V1_MAX_DEPTH, MANIFEST_SBOR_V1_PAYLOAD_PREFIX, RADIX_TOKEN}};
 use scrypto_unit::TestRunner;
@@ -60,6 +62,23 @@ impl Fuzzer {
             manifest,
             vec![],
         );
+
+        let mut xrd_balance = dec!(0);
+        if let TransactionResult::Commit(result) = &receipt.result {
+            for (_address, changes) in result.balance_changes() {
+                for (resouce, change) in changes {
+                    if resouce == &RADIX_TOKEN {
+                        xrd_balance += change.clone().fungible().clone();
+                    }
+                }
+            }
+        }
+        // detect inflation issue
+        if xrd_balance > dec!(0) {
+            println!("{:?}", receipt);
+            println!("{:?}", receipt.result);
+            panic!("xrd_balance: {}", xrd_balance);
+        }
     
         //if receipt.is_commit_success() {
         //    println!("Execution was ok");
