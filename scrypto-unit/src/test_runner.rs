@@ -237,6 +237,10 @@ impl TestRunner {
         }
     }
 
+    pub fn disable_commit(&mut self) {
+        self.disable_commit = true;
+    }
+
     pub fn faucet_component(&self) -> ComponentAddress {
         self.faucet_component
     }
@@ -261,6 +265,10 @@ impl TestRunner {
 
     pub fn reset_nonce(&mut self) {
         self.next_transaction_nonce -= 1;
+    }
+
+    pub fn set_nonce(&mut self, nonce: u64) {
+        self.next_transaction_nonce = nonce;
     }
 
     pub fn new_key_pair(&mut self) -> (EcdsaSecp256k1PublicKey, EcdsaSecp256k1PrivateKey) {
@@ -750,7 +758,7 @@ impl TestRunner {
     {
         // dump transactions from tests to files so we can reuse them for fuzzing seed corpus
         if let Ok(dump_manifest_dir) = std::env::var("DUMP_MANIFEST_DIR") {
-            let encoded_manifest = manifest_encode(&manifest).unwrap();
+            let encoded_manifest = manifest_encode(&(&manifest, self.next_transaction_nonce)).unwrap();
             let manifest_hash = hash(&encoded_manifest);
             let path = format!("{dump_manifest_dir}/{manifest_hash}.manifest");
             let mut file = std::fs::File::create(path).unwrap();
